@@ -23,6 +23,7 @@
 
 %Image stuff
 \usepackage{graphicx}
+\usepackage{enumitem}
 \graphicspath{ {./Assets/} }
 
 \NeedsTeXFormat{LaTeX2e}

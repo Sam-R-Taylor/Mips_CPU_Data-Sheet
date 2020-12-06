@@ -28,8 +28,13 @@
 \section{Overall Architecture}
 \smallbreak
 
-
 \section{Design Decisions}
+Our design made some:
+\begin{itemize}[noitemsep,nolistsep]
+  \item Five stage pipeline
+  \item Branch prediction
+  \item Caching
+\end{itemize}
 \smallbreak
 
 
@@ -55,9 +60,35 @@ Comments on said diagram
 
 \section{Testing Approach}
 \smallbreak
-We choose to do this
+Testing was performed by two separate entities, one entity had access to the full architecture whilst a second had access to only input and output of the CPU (as a third party would). This distinction ensured testing was not biased by an understanding of one single architecture and maintained the test-bench's ability to test any CPU. As such different strategies were used by each entity.
+\smallbreak
+
+\begin{figure}[h]
+    \includegraphics[scale=0.7]{Assets/Strategy.PNG}
+    \captionsetup{justification=centering}
+    \caption{Test Strategy table}
+\end{figure}
+
+\smallbreak
+
+
+Entity one: Represents the architecture in a hierarchical fashion , identifies the bottom components (adders , shifts , etc) ,identifies a test strategy for each bottom component and moves up the hierarchy testing intermediate circuity between components.
+\smallbreak
+
+%\begin{figure}[h]
+%    \includegraphics[scale=0.7]{Assets/Strategy.PNG}
+%    \captionsetup{justification=centering}
+ %   \caption{Test Strategy table}
+%\end{figure}
+
+\smallbreak
 
 \vfill\break
+
+Functional Testing: Will utilise a virtual RAM to control inputs to the CPU and as such tests individual and combinations of instructions. Again it follows a ground up approach testing the least logically and architecturally complex instructions first. R-Type instructions (aside from 3 shift instructions) only use registers in their operation so were tested first. Followed by J-Type then I-Type. Testing then moves onto exemplar programs designed to test edge cases of program execution. 
+\smallbreak
+
+
 
 \section{Testing Flow}
 Hya
