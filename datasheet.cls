@@ -26,6 +26,7 @@
 \usepackage{enumitem}
 \graphicspath{ {./Assets/} }
 
+
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{datasheet}[2020/11/13 LaTeX document class for datasheets]
 

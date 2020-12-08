@@ -29,12 +29,14 @@
 \smallbreak
 
 \section{Design Decisions}
-Our design made some:
-\begin{itemize}[noitemsep,nolistsep]
-  \item Five stage pipeline
-  \item Branch prediction
-  \item Caching
-\end{itemize}
+Overall our design Incorporated a number of 
+\textbf{Five stage pipeline} this choice enabled a ...
+
+\textbf{Branch prediction} this choice was a key to the low...
+
+\textbf{Caching} this choice was ...
+
+
 \smallbreak
 
 
@@ -56,12 +58,38 @@ Comments on said diagram
 % page-by-page.
 \newpage
 
+\onecolumn
+
+\section{Design}
+
+orem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ultricies lorem sapien. Nullam sollicitudin molestie arcu, vitae commodo ligula tempor a. Vivamus et commodo tortor, eu elementum nisl. Maecenas bibendum urna eget nibh pharetra, et hendrerit purus cursus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis ligula lectus, vehicula vitae quam ac, feugiat congue urna. Nullam eget rutrum enim. Nullam vitae hendrerit erat, id placerat velit. Fusce congue tellus lorem, vel porta mauris gravida molestie. Proin dignissim tellus sit amet nisi blandit rutrum. Suspendisse potenti. Nunc sed libero ut orci eleifend porta sit amet eu massa. Ut quis ante tellus. Sed id tempor libero, ut imperdiet lorem.
+
+Vivamus ut libero diam. Proin ac placerat metus. Aliquam et blandit lectus. Donec elementum nisi ut felis feugiat euismod. Integer sagittis blandit tempus. Nam a arcu pharetra, lacinia ante eu, imperdiet nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse ex ante, finibus nec est in, bibendum ornare dui. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+
+Praesent et odio massa. Pellentesque tempus egestas commodo. Proin odio odio, lacinia consequat fermentum eget, porta eget elit. Curabitur lacinia, nisi in bibendum egestas, magna velit molestie lectus, at congue erat leo sed nisi. Aenean quis ipsum venenatis, faucibus leo sit amet, porttitor magna. Morbi semper, sapien vel pellentesque euismod, urna dui dapibus mi, ut commodo quam libero non massa. In eleifend at enim quis interdum. Aliquam a est mi. Nam neque arcu, pharetra nec finibus sit amet, gravida nec lorem. Donec sodales dolor consectetur velit tempus venenatis. Aenean bibendum nibh nunc, id auctor dolor molestie a. Vestibulum quis mi facilisis, dapibus lectus vel, molestie massa.
+
+Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce varius tristique leo vitae laoreet. Sed et hendrerit orci, non congue augue. Maecenas vitae maximus tellus. Curabitur mauris nulla, volutpat a finibus id, semper ac ipsum. Nulla sodales, quam id pellentesque efficitur, elit lectus scelerisque leo, mattis euismod sem augue a elit. Suspendisse dictum pulvinar dolor vel efficitur. Ut rutrum id mi eu aliquet. Donec accumsan nulla diam, at ornare ex dignissim eu. Nam ac urna a risus lobortis eleifend. Suspendisse vitae ullamcorper ligula. Sed iaculis, felis vel bibendum posuere, massa sem rutrum lectus, eget malesuada urna enim sed neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent volutpat egestas tempus.
+
+
+
+\begin{figure}[h]
+    \includegraphics[scale=0.8]{Assets/examplearch.PNG}
+    \centering
+    \captionsetup{justification=centering}
+    \caption{Exemplar Architecture}
+\end{figure}
+
+
+\newpage
+
 \twocolumn
 
 \section{Testing Approach}
 \smallbreak
-Testing was performed by two separate entities, one entity had access to the full architecture whilst a second had access to only input and output of the CPU (as a third party would). This distinction ensured testing was not biased by an understanding of one single architecture and maintained the test-bench's ability to test any CPU. As such different strategies were used by each entity.
+Testing was performed by two separate methodologies, one methodology tested the full architecture from ground up focusing on architecture robustness whilst a second tested for functional correctness using CPU I/O (as a third party would). This distinction ensured the testing was not designed to solely evaluate our architecture but could also be used on similar MIPS architectures. Further it prevented any framing or confirmation bias in evaluation of results.
 \smallbreak
+
+Each component varies in functionality and make up so testing was tailored for each component / block , the table highlights the test strategy used on each.
 
 \begin{figure}[h]
     \includegraphics[scale=0.7]{Assets/Strategy.PNG}
@@ -72,26 +100,46 @@ Testing was performed by two separate entities, one entity had access to the ful
 \smallbreak
 
 
-Entity one: Represents the architecture in a hierarchical fashion , identifies the bottom components (adders , shifts , etc) ,identifies a test strategy for each bottom component and moves up the hierarchy testing intermediate circuity between components.
+\textbf{Methodology one} (Robustness Testing): Performed all logic scan , BIST and boundary scan testing through the development of our architecture. This testing occurred in an order determined by the component hierarchy. Testing begins at each bottom component and moves up the hierarchy, testing intermediate circuity as it continues. 
 \smallbreak
 
-%\begin{figure}[h]
-%    \includegraphics[scale=0.7]{Assets/Strategy.PNG}
-%    \captionsetup{justification=centering}
- %   \caption{Test Strategy table}
-%\end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.45]{Assets/hierarchy2.png}
+    \captionsetup{justification=centering}
+    \caption{CPU Component Hierarchy}
+\end{figure}
 
 \smallbreak
+
+Component testing method:
+
+1. Identify inputs, outputs and intended behaviour
+
+2. Using verilator write cpp code, feeding the module with different inputs and checking outputs manually or automatically.
+Manual: values chosen by hand to see how the module handles certain edge cases.Automatic: values chosen 'randomly' (on a set increment or by multiplying increments).
 
 \vfill\break
 
-Functional Testing: Will utilise a virtual RAM to control inputs to the CPU and as such tests individual and combinations of instructions. Again it follows a ground up approach testing the least logically and architecturally complex instructions first. R-Type instructions (aside from 3 shift instructions) only use registers in their operation so were tested first. Followed by J-Type then I-Type. Testing then moves onto exemplar programs designed to test edge cases of program execution. 
-\smallbreak
+3. If a test case fails, log information usually inputs, expected value, returned value and any other outputs from the module.
+
+ 
+
+
+
+\textbf{Methodology Two} (Functional Testing): Utilises a virtual RAM to control inputs to the CPU and as such, tests individual and combinations of instructions. Again it follows a ground up approach testing the least logically and architecturally complex instructions first. R-Type instructions (aside from 3 shift instructions) only use registers in their operation so were tested first. Followed by J-Type then I-Type. After this programs containing edge cases are tested and then exemplar programs designed to complex functionality such as recursion.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{Assets/functflow.PNG}
+    \captionsetup{justification=centering}
+    \caption{Functionality testing flowchart}
+\end{figure}
 
 
 
 \section{Testing Flow}
-Hya
+Maybe not needed but can be used to fill up to hit more design points on functiona testing?
+\smallbreak
+
 
 
 \onecolumn
