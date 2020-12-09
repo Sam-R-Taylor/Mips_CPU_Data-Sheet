@@ -134,10 +134,20 @@ Manual: values chosen by hand to see how the module handles certain edge cases.A
     \caption{Functionality testing flowchart}
 \end{figure}
 
+Method of testing for instructions and programs:
+
+The test bench generates a HEX file which initialises a RAM with the necessary data for testing a certain instruction. It then compiles the architecture with the initialised RAM and runs the test bench. Testing occurs instruction by instruction, giving information of each case that is passed or failed. 
+
+\textbf{Instruction Tests}: Each instruction was subjected to a number of test cases designed to test normal and extreme operation. I.e with ADDU , overflow was tested as an edge case. 
+
+\textbf{Edge Case Tests}: With these programs we test edge case interactions between instruction such as ****
+
+\textbf{Exemplar Programs}: These programs test some flagship CPU operation such as recursion , linked addressing and memory thrashing. **** 
+
+The functional testing methodology was designed to test any MIPS ISA using a range of software testing principles. Unit testing was performed in the instruction tests where each building block of the ISA was scrutinised. Integration testing was performed in Edge case testing where we ensured good collaboration of instructions. General function tests were performed by exemplar programs. This comprehensive strategy ensured a robust testing procedure.
 
 
-\section{Testing Flow}
-Maybe not needed but can be used to fill up to hit more design points on functiona testing?
+
 \smallbreak
 
 
@@ -148,20 +158,57 @@ Maybe not needed but can be used to fill up to hit more design points on functio
 \smallbreak
 
 \begin{table}[h]
-\caption{Summary CPU Specifications}
-\begin{tabularx}{\textwidth}{l | c | c c c | c | X}
+\caption{\textbf{Timing Specifications Summary } }
+\begin{tabularx}{\textwidth}{l | c | c |  X}
     \thickhline
-    \textbf{Parameter} & \textbf{Symbol} & \textbf{Min.} & \textbf{Typ.} & \textbf{Max.} &
-    \textbf{Unit} & \textbf{Conditions} \\
+    \textbf{Parameter} &  \textbf{Fmax} & \textbf{Unit} & \textbf{Conditions} \\
     \hline
-    Page width  & $p_w$ & 20.9 & 21.0 & 21.1 & cm & \multirow{2}{*}{Standard A4 paper} \\
-    Page height & $p_h$ & 29.6 & 29.7 & 29.8 & cm &  \\
-    \hline
-    Insulation voltage & $E_{max}$\footnotemark[1] & & 1 & & kV & \\
+    Maximum clock frequency  & 77.33 & MHz & 1200mV 85C \\
+     \hline
+    Maximum clock frequency  & 86.96 & MHz & 1200mV 0C \\
     \thickhline
 \end{tabularx}
 \footnotetext[1]{Based on characterization data, not tested in production.}
 \end{table}
+
+Analysis showed that the Worst-Case Timing Paths: \verb|Decode_Execute_Register| \verb|->| \verb|Execute_Memory Register|
+
+\begin{table}[h]
+\caption{\textbf{Area Specifications Summary } }
+\begin{tabularx}{\textwidth}{l | X}
+    \thickhline
+    \textbf{Parameter} &  \textbf{No.} \\
+    \thickhline
+    Total Logic Elements &  2,004\\
+    \hline
+    Combinatorial w/ no register  & 1563  \\
+     \hline
+    Register only & 43  \\
+    \hline
+    Combinatorial w/ register & 398 \\
+    \hline
+    Total registers & 441 \\
+    \thickhline
+\end{tabularx}
+\footnotetext[1]{Based on characterization data, not tested in production.}
+\end{table}
+
+\begin{table}[h]
+\caption{\textbf{Power Specifications Summary } }
+\begin{tabularx}{\textwidth}{l | c | X}
+    \thickhline
+    \textbf{Parameter} & \textbf{Value} &  \textbf{Unit} \\
+    \thickhline
+    Total Thermal Power Dissipation & 222.64 & mW\\
+    \hline
+     Core Dynamic Thermal Dissipation  & 37.11 & mW  \\
+     \hline
+    Core Static Thermal Dissipation & 49.94 & mW  \\
+    \thickhline
+\end{tabularx}
+\footnotetext[1]{Based on characterization data, not tested in production.}
+\end{table}
+Power - Low Estimation Confidence:
 
 \textbf{Note:} All measurements taken above were performed in the Cyclone IV E Auto Quartus
 
