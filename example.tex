@@ -25,58 +25,118 @@
 \begin{document}
 \maketitle
 
-\section{Overall Architecture}
+\section{Specification}
+
+
+\begin{enumerate}
+\item \textbf{Bus interface:} Instruction and data fetched over same interface allowing variable latency
+\item \textbf{Avalon supported RAM}
+\item \textbf{Supports 48 MIPS  instructions} 
+\item \textbf{All signals are synchronous clock signals}
+\item \textbf{Includes reset and halt behaviour:} 													Set high for at least 1 cycle , Active signal high.
+\item \textbf{Two special memory locations:}											     	
+\begin{itemize}
+\item 0x00000000 : Attempt to execute address 0 causes CPU halt
+\item 0xBFC00000 : Execution starts here after reset	
+
+\end{itemize}
+\end{enumerate}
+ 
+
 \smallbreak
 
 \section{Design Decisions}
-Overall our design Incorporated a number of 
-\textbf{Five stage pipeline} this choice enabled a ...
 
-\textbf{Branch prediction} this choice was a key to the low...
+\textbf{Multi cycle processor:} Chosen as was a necessary step to allow interaction with a non combinatorial memory and incorporate pipe lining into the design. Made usage of FSM imperative.
 
-\textbf{Caching} this choice was ...
+\textbf{Five stage pipeline:} Chosen to improve throughput, allowing five instructions to execute simultaneously. Increases the instructions per cycle (IPC) of the CPU up to 5x compared to a non-pipelined five stage MIPs CPU. Stages: Fetch , decode , execute , memory and write-back. Pipelining Demanded the use of a Hazard Unit to forward calculated register values which had not been written back to the register file yet. By splitting instructions into five stages, the critical path of the circuit was significantly reduced allowing for an increase in clock speed.
+
+\textbf{Hazard handling:} Incorporated to handle hazards that occur when results of one in instruction are needed by a subsequent instruction before the latter has complete.
+
+\section{Clever Features:}
+
+\textbf{Branch prediction:} To maintain an average cycle per instruction (CPI) as close as possible to one, branch prediction is employed to reduce the number of pipeline flushes required for successful branch instructions.
 
 
+\textbf{Sequential multiplier/divider: } This choice reduced the large area cost of combinatorial multiply and divide blocks whilst allowing for these operations to continue during unused Stall cycles. Further, it allowed for a higher frequency clock as the critical path was reduced.
+
+
+
+{\textbf{Clock Gating}} 
+The remove clock glitches between the master clock and the derived internal CPU clock, a latch was used to modify the clock enable line for the CPU on the negative half of the master clock cycle.
+
+{\textbf{RAM State Machine}}
+To communicate efficiently with RAM over the Avalon Bus interface a, six state finite state machine was employed to latch RAM data into CPU as well as stalling the CPU during a wait request.
 \smallbreak
 
 
 % Switch to next column
-\vfill\break
 
-\section{Architecture Diagram}
+\section{Pin-out Diagram}
+
 \smallbreak
 \begin{figure}[h]
-    \includegraphics[scale=0.2]{MIPS_Architecture_(Pipelined).svg.png}
-    \captionsetup{justification=centering}
-    \caption{Mips Pipelined design (Place Holder)}
+    \includegraphics[scale=0.35]{Assets/bus.png}
 \end{figure}
 
-Comments on said diagram
 
 
-% For wide tables, a single column layout is better. It can be switched
-% page-by-page.
+\section{Featured Components}
+\textbf{Register File:} Holds data for 32 x 32 bit registers and two special HI and LO registers.
+
+\textbf{ALU:} Executes arithmetic and logical operations.
+
+\textbf{Program counter register:} Stores address of instruction to read from memory
+
+\textbf{Branch Adder:} Computes the branch target address.
+
+\textbf{Sign Extend:} Used to extend I-Instruction offset stored in immediate field. 
+
+\textbf{Branch Comparator:} Determines if the branch instruction condition is successful, employed to perform branch prediction.
+
+\textbf{Forwarding Mux:} Driven by the hazard unit, allowing calculated values which have not been written to the register file, be forwarded to the ALU.
+
+{\textbf{Pipeline Registers}} Stores instruction data and control signals between pipeline stages.
+
 \newpage
 
 \onecolumn
 
-\section{Design}
+\section{Architecture Overview}
 
-orem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ultricies lorem sapien. Nullam sollicitudin molestie arcu, vitae commodo ligula tempor a. Vivamus et commodo tortor, eu elementum nisl. Maecenas bibendum urna eget nibh pharetra, et hendrerit purus cursus. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Duis ligula lectus, vehicula vitae quam ac, feugiat congue urna. Nullam eget rutrum enim. Nullam vitae hendrerit erat, id placerat velit. Fusce congue tellus lorem, vel porta mauris gravida molestie. Proin dignissim tellus sit amet nisi blandit rutrum. Suspendisse potenti. Nunc sed libero ut orci eleifend porta sit amet eu massa. Ut quis ante tellus. Sed id tempor libero, ut imperdiet lorem.
+\subsection{Data path}
+The Data path consists of five stages separated by four pipeline registers (In the case of the Fetch and Memory stages no register is required as we interact with a sequential memory that operates under clocked operation already). Each stage has a major component and a number of minor components that dictates its operation and ensure correct function. These components are:
 
-Vivamus ut libero diam. Proin ac placerat metus. Aliquam et blandit lectus. Donec elementum nisi ut felis feugiat euismod. Integer sagittis blandit tempus. Nam a arcu pharetra, lacinia ante eu, imperdiet nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse ex ante, finibus nec est in, bibendum ornare dui. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+\begin{multicols}{2}
 
-Praesent et odio massa. Pellentesque tempus egestas commodo. Proin odio odio, lacinia consequat fermentum eget, porta eget elit. Curabitur lacinia, nisi in bibendum egestas, magna velit molestie lectus, at congue erat leo sed nisi. Aenean quis ipsum venenatis, faucibus leo sit amet, porttitor magna. Morbi semper, sapien vel pellentesque euismod, urna dui dapibus mi, ut commodo quam libero non massa. In eleifend at enim quis interdum. Aliquam a est mi. Nam neque arcu, pharetra nec finibus sit amet, gravida nec lorem. Donec sodales dolor consectetur velit tempus venenatis. Aenean bibendum nibh nunc, id auctor dolor molestie a. Vestibulum quis mi facilisis, dapibus lectus vel, molestie massa.
+\textbf{Fetch Stage:} Memory (Instruction memory), Program Counter Register , PC increment , PC Mux 
 
-Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Fusce varius tristique leo vitae laoreet. Sed et hendrerit orci, non congue augue. Maecenas vitae maximus tellus. Curabitur mauris nulla, volutpat a finibus id, semper ac ipsum. Nulla sodales, quam id pellentesque efficitur, elit lectus scelerisque leo, mattis euismod sem augue a elit. Suspendisse dictum pulvinar dolor vel efficitur. Ut rutrum id mi eu aliquet. Donec accumsan nulla diam, at ornare ex dignissim eu. Nam ac urna a risus lobortis eleifend. Suspendisse vitae ullamcorper ligula. Sed iaculis, felis vel bibendum posuere, massa sem rutrum lectus, eget malesuada urna enim sed neque. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Praesent volutpat egestas tempus.
+\textbf{Decode Stage:} Register File, Sign Extend , Bit Shift , Branch Adder , Comparator , Forwarding Muxs.
+
+\textbf{Execute Stage:} ALU, Forwarding Muxs, Register Destination Mux , ALU Src Mux.
+
+\textbf{Memory Stage:} Memory (Data Memory),
+
+\textbf{Write-back stage:}Register File, Memory to Reg Mux.
+
+\end{multicols}
+
+\subsection{Control unit}
+The control unit produces control signals during the decode stage by examining the \textit{opcode} and \textit{funct} fields of an instruction.The incorporation of pipe-lining made it so that all signals associated with one instruction must advance through the pipeline in unison with said instruction to remain synchronised with the instruction they are associated, ensuring correct operation. 
+
+
+
+\subsection{Hazard unit} 
+Prevents  RAW hazards that occur when instructions are dependant on results of another instruction through forwarding and stalling. Prevents Control hazards through flushing and stalling CPU operations. With a combinatorial block that accesses a number of component control lines.
+
 
 
 
 \begin{figure}[h]
-    \includegraphics[scale=0.8]{Assets/examplearch.PNG}
+    \includegraphics[scale=0.75]{Assets/circuit.PNG}
     \centering
     \captionsetup{justification=centering}
-    \caption{Exemplar Architecture}
+    \caption{Overview of Architecture}
 \end{figure}
 
 
@@ -126,26 +186,22 @@ Manual: values chosen by hand to see how the module handles certain edge cases.A
 
 
 
-\textbf{Methodology Two} (Functional Testing): Utilises a virtual RAM to control inputs to the CPU and as such, tests individual and combinations of instructions. Again it follows a ground up approach testing the least logically and architecturally complex instructions first. R-Type instructions (aside from 3 shift instructions) only use registers in their operation so were tested first. Followed by J-Type then I-Type. After this programs containing edge cases are tested and then exemplar programs designed to complex functionality such as recursion.
+\textbf{Methodology Two} (Functional Testing): Utilises a virtual RAM to control inputs to the CPU and as such, tests individual and combinations of instructions. Again it follows a ground up approach testing the least logically and architecturally complex instructions first. R-Type instructions (aside from 3 shift instructions) only use registers in their operation so were tested first. Followed by J-Type then I-Type.
+
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.7]{Assets/functflow.PNG}
+    \includegraphics[scale=0.7]{Assets/functionalflow (1).PNG}
     \captionsetup{justification=centering}
     \caption{Functionality testing flowchart}
 \end{figure}
 
-Method of testing for instructions and programs:
+\textbf{Method of testing for instructions and programs:}
 
-The test bench generates a HEX file which initialises a RAM with the necessary data for testing a certain instruction. It then compiles the architecture with the initialised RAM and runs the test bench. Testing occurs instruction by instruction, giving information of each case that is passed or failed. 
+The test bench employs a MIPS parser which produces a hex file of a test case regarding a certain instruction. Each test case consists of a comment regarding the instruction to be tested, the index of the test case, the expected output in register v0, and any additional notes. The RAM is then initialised with the HEX file and linked with the CPU to simulate the test case. The test bench then compares the output in register v0 with the expected output in the comment, to produce the final outcome giving information regarding the pass or fail of the instruction.
 
-\textbf{Instruction Tests}: Each instruction was subjected to a number of test cases designed to test normal and extreme operation. I.e with ADDU , overflow was tested as an edge case. 
+\textbf{Instruction Tests}: Each instruction was tested by 2 to 5 test cases designed to test normal and extreme operation. It began by testing simple cases and progressed to edge cases involving interactions with multiple instructions, extreme inputs / outputs and extreme memory access
 
-\textbf{Edge Case Tests}: With these programs we test edge case interactions between instruction such as ****
-
-\textbf{Exemplar Programs}: These programs test some flagship CPU operation such as recursion , linked addressing and memory thrashing. **** 
-
-The functional testing methodology was designed to test any MIPS ISA using a range of software testing principles. Unit testing was performed in the instruction tests where each building block of the ISA was scrutinised. Integration testing was performed in Edge case testing where we ensured good collaboration of instructions. General function tests were performed by exemplar programs. This comprehensive strategy ensured a robust testing procedure.
-
+The functional testing methodology was designed to test any MIPS ISA using a range of software testing principles. Unit testing was performed in the early instruction tests where each instruction of the ISA was scrutinised. Integration testing was performed in the later edge case tests where we ensured good collaboration of instructions. This ensured a holistic and specialised testing approach. 
 
 
 \smallbreak
@@ -163,15 +219,15 @@ The functional testing methodology was designed to test any MIPS ISA using a ran
     \thickhline
     \textbf{Parameter} &  \textbf{Fmax} & \textbf{Unit} & \textbf{Conditions} \\
     \hline
-    Maximum clock frequency  & 77.33 & MHz & 1200mV 85C \\
+    Maximum clock frequency  & 42.17 & MHz & 1200mV 85C \\
      \hline
-    Maximum clock frequency  & 86.96 & MHz & 1200mV 0C \\
+    Maximum clock frequency  & 37.25 & MHz & 1200mV 0C \\
     \thickhline
 \end{tabularx}
 \footnotetext[1]{Based on characterization data, not tested in production.}
 \end{table}
 
-Analysis showed that the Worst-Case Timing Paths: \verb|Decode_Execute_Register| \verb|->| \verb|Execute_Memory Register|
+Analysis showed that the Worst-Case Timing Paths: \verb|Decode_Execute_Register| \verb|->| \verb|ALU_Multiplier|
 
 \begin{table}[h]
 \caption{\textbf{Area Specifications Summary } }
@@ -179,15 +235,15 @@ Analysis showed that the Worst-Case Timing Paths: \verb|Decode_Execute_Register|
     \thickhline
     \textbf{Parameter} &  \textbf{No.} \\
     \thickhline
-    Total Logic Elements &  2,004\\
+    Total Logic Elements &  6,595\\
     \hline
-    Combinatorial w/ no register  & 1563  \\
+    Combinatorial w/ no register  & 4,236  \\
      \hline
-    Register only & 43  \\
+    Register only & 192  \\
     \hline
-    Combinatorial w/ register & 398 \\
+    Combinatorial w/ register & 2,167 \\
     \hline
-    Total registers & 441 \\
+    Total registers & 2,359 \\
     \thickhline
 \end{tabularx}
 \footnotetext[1]{Based on characterization data, not tested in production.}
@@ -199,16 +255,18 @@ Analysis showed that the Worst-Case Timing Paths: \verb|Decode_Execute_Register|
     \thickhline
     \textbf{Parameter} & \textbf{Value} &  \textbf{Unit} \\
     \thickhline
-    Total Thermal Power Dissipation & 222.64 & mW\\
+    Total Thermal Power Dissipation & 158.77 & mW\\
     \hline
-     Core Dynamic Thermal Dissipation  & 37.11 & mW  \\
+     Core Dynamic Thermal Dissipation  & 41.23 & mW  \\
      \hline
-    Core Static Thermal Dissipation & 49.94 & mW  \\
+    Core Static Thermal Dissipation & 50.41 & mW  \\
+    \hline
+    I/O Thermal Dissipation & 67.13 & mW  \\
     \thickhline
 \end{tabularx}
 \footnotetext[1]{Based on characterization data, not tested in production.}
 \end{table}
-Power - Low Estimation Confidence:
+Power - Low Estimation Confidence.
 
 \textbf{Note:} All measurements taken above were performed in the Cyclone IV E Auto Quartus
 
